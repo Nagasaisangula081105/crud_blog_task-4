@@ -2,10 +2,35 @@
 session_start();
 include("../config/db.php");
 
-$id = $_GET['id'];
+// User must be logged in
+if (!isset($_SESSION['username'])) {
+    header("Location: ../auth/login.php");
+    exit();
+}
 
-mysqli_query($conn, "DELETE FROM posts WHERE id=$id");
+// Only Admin can delete posts
+if ($_SESSION['role'] != "admin") {
+    die("❌ Access Denied! Only Admin can delete posts.");
+}
 
-header("Location: read.php");
-exit();
+// Validate ID
+if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
+    die("Invalid Post ID!");
+}
+
+$id = (int)$_GET['id'];
+
+// Prepared Statement
+$stmt = mysqli_prepare($conn, "DELETE FROM posts WHERE id = ?");
+mysqli_stmt_bind_param($stmt, "i", $id);
+
+if (mysqli_stmt_execute($stmt)) {
+    mysqli_stmt_close($stmt);
+    header("Location: read.php");
+    exit();
+} else {
+    echo "Error deleting post!";
+}
+
+mysqli_stmt_close($stmt);
 ?>

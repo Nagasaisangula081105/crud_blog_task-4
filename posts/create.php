@@ -9,58 +9,136 @@ if(!isset($_SESSION['username'])){
 
 if(isset($_POST['submit'])){
 
-    $title = $_POST['title'];
-    $content = $_POST['content'];
+    $title = trim($_POST['title']);
+    $content = trim($_POST['content']);
 
-    $sql = "INSERT INTO posts(title, content) VALUES('$title','$content')";
+    $stmt = mysqli_prepare($conn, "INSERT INTO posts (title, content) VALUES (?, ?)");
 
-    if(mysqli_query($conn, $sql)){
-        echo "Post Added Successfully!";
-    } else {
-        echo "Error!";
+    mysqli_stmt_bind_param($stmt, "ss", $title, $content);
+
+    if(mysqli_stmt_execute($stmt)){
+        mysqli_stmt_close($stmt);
+        header("Location: read.php");
+        exit();
+    }else{
+        echo "<script>alert('Error while adding post!');</script>";
+        mysqli_stmt_close($stmt);
     }
 }
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>CRUD Blog | Create Post</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Create Post | CRUD Blog</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+body{
+    background: linear-gradient(135deg,#0d6efd,#6f42c1);
+    min-height:100vh;
+}
+
+.card{
+    border:none;
+    border-radius:20px;
+}
+
+.form-control{
+    border-radius:12px;
+}
+
+textarea{
+    resize:none;
+}
+
+.btn{
+    border-radius:12px;
+}
+</style>
+
 </head>
 
-<body class="bg-light">
+<body>
 
-<div class="container mt-5">
+<div class="container py-5">
 
-<div class="card shadow-lg p-4">
+<div class="row justify-content-center">
 
-<h2 class="text-center text-success mb-4">➕ Create New Post</h2>
+<div class="col-lg-7">
+
+<div class="card shadow-lg">
+
+<div class="card-header bg-success text-white text-center p-4">
+
+<h2>📝 Create New Blog Post</h2>
+
+<p class="mb-0">Write and publish your post</p>
+
+</div>
+
+<div class="card-body p-4">
 
 <form method="POST">
 
 <div class="mb-3">
-<label class="form-label">Title</label>
-<input type="text" name="title" class="form-control" placeholder="Enter Post Title" required>
+
+<label class="form-label fw-bold">
+Post Title
+</label>
+
+<input
+type="text"
+name="title"
+class="form-control"
+placeholder="Enter your post title"
+required>
+
 </div>
 
-<div class="mb-3">
-<label class="form-label">Content</label>
-<textarea name="content" class="form-control" rows="5" placeholder="Write your post here..." required></textarea>
+<div class="mb-4">
+
+<label class="form-label fw-bold">
+Post Content
+</label>
+
+<textarea
+name="content"
+class="form-control"
+rows="7"
+placeholder="Write your content here..."
+required></textarea>
+
 </div>
 
-<button type="submit" name="submit" class="btn btn-success w-100">
-Add Post
+<div class="d-grid gap-2">
+
+<button type="submit" name="submit" class="btn btn-success btn-lg">
+➕ Publish Post
 </button>
+
+<a href="read.php" class="btn btn-primary">
+📄 View All Posts
+</a>
+
+<a href="../dashboard.php" class="btn btn-dark">
+🏠 Back to Dashboard
+</a>
+
+</div>
 
 </form>
 
-<br>
+</div>
 
-<a href="../dashboard.php" class="btn btn-secondary w-100">
-⬅ Back to Dashboard
-</a>
+</div>
+
+</div>
 
 </div>
 

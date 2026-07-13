@@ -36,18 +36,26 @@ $row = mysqli_fetch_assoc($result);
 <form method="POST">
 
 <div class="mb-3">
-<label class="form-label">Title</label>
-<input type="text" name="title" class="form-control"
-value="<?php echo $row['title']; ?>" required>
+    <label class="form-label">Title</label>
+    <input
+        type="text"
+        name="title"
+        class="form-control"
+        value="<?php echo htmlspecialchars($row['title']); ?>"
+        required>
 </div>
 
 <div class="mb-3">
-<label class="form-label">Content</label>
-<textarea name="content" class="form-control" rows="5" required><?php echo $row['content']; ?></textarea>
+    <label class="form-label">Content</label>
+    <textarea
+        name="content"
+        class="form-control"
+        rows="5"
+        required><?php echo htmlspecialchars($row['content']); ?></textarea>
 </div>
 
 <button type="submit" name="update" class="btn btn-warning w-100">
-Update Post
+    Update Post
 </button>
 
 </form>
