@@ -1,34 +1,30 @@
+
 <?php
 session_start();
 include("../config/db.php");
 
-if(!isset($_SESSION['username'])){
+if (!isset($_SESSION['username'])) {
     header("Location: ../auth/login.php");
     exit();
 }
 
-if(isset($_POST['submit'])){
+if (isset($_POST['submit'])) {
 
-    $title = trim($_POST['title']);
-    $content = trim($_POST['content']);
+    $title = mysqli_real_escape_string($conn, trim($_POST['title']));
+    $content = mysqli_real_escape_string($conn, trim($_POST['content']));
 
-    $stmt = mysqli_prepare($conn, "INSERT INTO posts (title, content) VALUES (?, ?)");
+    $sql = "INSERT INTO posts (title, content) VALUES ('$title', '$content')";
 
-    mysqli_stmt_bind_param($stmt, "ss", $title, $content);
-
-    if(mysqli_stmt_execute($stmt)){
-        mysqli_stmt_close($stmt);
+    if (mysqli_query($conn, $sql)) {
         header("Location: read.php");
         exit();
-    }else{
-        echo "<script>alert('Error while adding post!');</script>";
-        mysqli_stmt_close($stmt);
+    } else {
+        die("Error: " . mysqli_error($conn));
     }
 }
-?>
-
-<!DOCTYPE html>
+?><!DOCTYPE html>
 <html lang="en">
+
 <head>
 
 <meta charset="UTF-8">
@@ -38,65 +34,91 @@ if(isset($_POST['submit'])){
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-<style>
-body{
-    background: linear-gradient(135deg,#0d6efd,#6f42c1);
-    min-height:100vh;
-}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 
-.card{
-    border:none;
-    border-radius:20px;
-}
-
-.form-control{
-    border-radius:12px;
-}
-
-textarea{
-    resize:none;
-}
-
-.btn{
-    border-radius:12px;
-}
-</style>
+<link rel="stylesheet" href="../style.css">
 
 </head>
 
 <body>
 
+<nav class="navbar navbar-expand-lg navbar-dark">
+
+<div class="container">
+
+<a class="navbar-brand fw-bold fs-3" href="../dashboard.php">
+
+<i class="fas fa-blog"></i>
+
+CRUD BLOG
+
+</a>
+
+<div>
+
+<a href="../dashboard.php" class="btn btn-primary me-2">
+
+<i class="fas fa-house"></i>
+
+Dashboard
+
+</a>
+
+<a href="../auth/logout.php" class="btn btn-danger">
+
+<i class="fas fa-right-from-bracket"></i>
+
+Logout
+
+</a>
+
+</div>
+
+</div>
+
+</nav>
+
 <div class="container py-5">
 
 <div class="row justify-content-center">
 
-<div class="col-lg-7">
+<div class="col-lg-8">
 
 <div class="card shadow-lg">
 
-<div class="card-header bg-success text-white text-center p-4">
+<div class="card-header text-center">
 
-<h2>📝 Create New Blog Post</h2>
+<h2>
 
-<p class="mb-0">Write and publish your post</p>
+<i class="fas fa-pen-to-square"></i>
+
+Create New Blog Post
+
+</h2>
+
+<p class="mb-0">
+
+Share your thoughts with everyone.
+
+</p>
 
 </div>
 
 <div class="card-body p-4">
 
 <form method="POST">
-
-<div class="mb-3">
+    <div class="mb-4">
 
 <label class="form-label fw-bold">
+<i class="fas fa-heading text-primary"></i>
 Post Title
 </label>
 
 <input
 type="text"
 name="title"
-class="form-control"
-placeholder="Enter your post title"
+class="form-control form-control-lg"
+placeholder="Enter your blog title..."
 required>
 
 </div>
@@ -104,34 +126,63 @@ required>
 <div class="mb-4">
 
 <label class="form-label fw-bold">
+<i class="fas fa-file-lines text-success"></i>
 Post Content
 </label>
 
 <textarea
 name="content"
 class="form-control"
-rows="7"
-placeholder="Write your content here..."
+rows="8"
+placeholder="Write your blog content here..."
 required></textarea>
 
 </div>
 
-<div class="d-grid gap-2">
+<div class="row mt-4">
 
-<button type="submit" name="submit" class="btn btn-success btn-lg">
-➕ Publish Post
+<div class="col-md-4 mb-3">
+
+<button
+type="submit"
+name="submit"
+class="btn btn-success btn-lg w-100">
+
+<i class="fas fa-paper-plane"></i>
+
+Publish
+
 </button>
 
-<a href="read.php" class="btn btn-primary">
-📄 View All Posts
-</a>
+</div>
 
-<a href="../dashboard.php" class="btn btn-dark">
-🏠 Back to Dashboard
+<div class="col-md-4 mb-3">
+
+<a href="read.php"
+class="btn btn-primary btn-lg w-100">
+
+<i class="fas fa-book-open"></i>
+
+View Posts
+
 </a>
 
 </div>
 
+<div class="col-md-4 mb-3">
+
+<a href="../dashboard.php"
+class="btn btn-dark btn-lg w-100">
+
+<i class="fas fa-house"></i>
+
+Dashboard
+
+</a>
+
+</div>
+
+</div>
 </form>
 
 </div>
@@ -143,6 +194,45 @@ required></textarea>
 </div>
 
 </div>
+
+<footer class="mt-5 py-4 text-center text-white">
+
+<div class="container">
+
+<h5 class="fw-bold">
+<i class="fas fa-blog"></i>
+CRUD BLOG
+</h5>
+
+<p class="mb-2">
+Create and manage your blog posts with ease.
+</p>
+
+<div class="mb-3">
+
+<a href="../dashboard.php" class="btn btn-primary me-2">
+<i class="fas fa-house"></i> Dashboard
+</a>
+
+<a href="read.php" class="btn btn-success me-2">
+<i class="fas fa-book-open"></i> View Posts
+</a>
+
+<a href="../auth/logout.php" class="btn btn-danger">
+<i class="fas fa-right-from-bracket"></i> Logout
+</a>
+
+</div>
+
+<p class="mb-0">
+© 2026 CRUD Blog | Developed by <strong>Nagasai</strong>
+</p>
+
+</div>
+
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>
